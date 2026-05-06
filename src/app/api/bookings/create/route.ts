@@ -19,10 +19,10 @@ export async function POST(req: Request) {
 
     const { slotId, userId } = validation.data;
 
-    // ১. ট্রানজেকশনে শুধু বুকিং কনফার্ম করা
     const booking = await prisma.$transaction(async (tx:any) => {
       const updatedSlot = await tx.slot.updateMany({
-        where: { id: slotId, isOpen: true },
+        where: { id: slotId,
+         isOpen: true },
         data: { isOpen: false },
       });
 
@@ -39,12 +39,10 @@ export async function POST(req: Request) {
       });
     });
 
-    // ২. ট্রানজেকশন সফল হওয়ার পর চার্জ করা
-    // এখন 'booking.id' ডাটাবেসে দৃশ্যমান, তাই chargePayment আর এরর দিবে না।
+    
     try {
       await chargePayment(booking.id, 100);
     } catch (chargeError) {
-      // যদি পেমেন্ট ফেইল করে, আপনি চাইলে এখানে বুকিং রিভার্স করার লজিক লিখতে পারেন।
       console.error("Payment failed:", chargeError);
       return NextResponse.json({ error: "Payment failed" }, { status: 500 });
     }
