@@ -21,9 +21,9 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-gray-50 p-6">
       <div className="mx-auto max-w-2xl rounded-2xl bg-white p-6 shadow-sm">
-        <h1 className="mb-6 text-3xl font-bold">
+        {/* <h1 className="mb-6 text-3xl font-bold">
           Book a Slot
-        </h1>
+        </h1> */}
 
         <BookingForm />
       </div>

@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const slots = await prisma.slot.findMany({
-      where: {
-        isOpen: true,
-      },
+      // where: {
+      //   isOpen: true,
+      // },
       orderBy: {
         startsAt: "asc",
       },

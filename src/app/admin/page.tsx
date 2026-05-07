@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
+import { GrHomeRounded } from "react-icons/gr";
+import Link from "next/link";
+import { CiBookmark } from "react-icons/ci";
+import { FaBookmark } from "react-icons/fa";
 
 type User = {
   id: string;
@@ -91,106 +96,156 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 p-6">
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="mx-auto max-w-6xl space-y-10">
 
-      {/* HEADER */}
-      <h1 className="text-2xl font-bold">
-        Admin Panel
-      </h1>
+        {/* HEADER */}
+        <div className=" md:flex justify-between gap-2 px-3">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl font-bold text-purple-400"
+          >
+            Admin Dashboard
+          </motion.h1>
 
-      {/* ---------------- CREATE USER ---------------- */}
-      <div className="rounded-xl border p-4 space-y-3">
-        <h2 className="font-semibold">Create User</h2>
+          <div className=" flex gap-3 justify-center items-center ">
 
-        <input
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          placeholder="Enter user name"
-          className="w-full rounded border p-2"
-        />
+            <Link href='/bookings-information'
 
-        <button
-          onClick={createUser}
-          disabled={loading}
-          className="rounded bg-black px-4 py-2 text-white"
-        >
-          Add User
-        </button>
-      </div>
-
-      {/* ---------------- CREATE SLOT ---------------- */}
-      <div className="rounded-xl border p-4 space-y-3">
-        <h2 className="font-semibold">Create Slot</h2>
-
-        <input
-          type="datetime-local"
-          value={start}
-          onChange={(e) => setStart(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-
-        <input
-          type="datetime-local"
-          value={end}
-          onChange={(e) => setEnd(e.target.value)}
-          className="w-full rounded border p-2"
-        />
-
-        <button
-          onClick={createSlot}
-          disabled={loading}
-          className="rounded bg-black px-4 py-2 text-white"
-        >
-          Add Slot
-        </button>
-      </div>
-
-      {/* ---------------- USERS LIST ---------------- */}
-      <div className="rounded-xl border p-4">
-        <h2 className="font-semibold mb-2">
-          Users ({users.length})
-        </h2>
-
-        <div className="space-y-2">
-          {users.map((u) => (
-            <div
-              key={u.id}
-              className="rounded border p-2 text-sm"
+              className="text-3xl font-bold text-purple-400 cursor-pointer"
             >
-              {u.name} — {u.id}
-            </div>
-          ))}
+              <FaBookmark />
+            </Link>
+            <Link href='/'
+
+              className="text-3xl font-bold text-purple-400 cursor-pointer"
+            >
+              <GrHomeRounded />
+            </Link>
+
+          </div>
+
+
         </div>
-      </div>
 
-      {/* ---------------- SLOTS LIST ---------------- */}
-      <div className="rounded-xl border p-4">
-        <h2 className="font-semibold mb-2">
-          Slots ({slots.length})
-        </h2>
+        {/* GRID 1: USER */}
+        <div className="grid md:grid-cols-2 gap-6">
 
-        <div className="space-y-2">
-          {slots.map((s) => (
-            <div
-              key={s.id}
-              className="rounded border p-2 text-sm"
+          {/* CREATE USER */}
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            className="rounded-xl border border-purple-600 bg-zinc-900 p-5 space-y-4 shadow-lg"
+          >
+            <h2 className="text-lg font-semibold text-purple-300">
+              Create User
+            </h2>
+
+            <input
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              placeholder="Enter user name"
+              className="w-full rounded bg-black border border-purple-500 p-2 outline-none focus:ring-2 focus:ring-purple-500"
+            />
+
+            <button
+              onClick={createUser}
+              disabled={loading}
+              className="w-full rounded cursor-pointer bg-purple-800 hover:bg-purple-700 transition px-4 py-2 font-medium"
             >
-              <div>
-                {new Date(s.startsAt).toLocaleString()} →{" "}
-                {new Date(s.endsAt).toLocaleString()}
-              </div>
+              Add User
+            </button>
+          </motion.div>
 
-              <div
-                className={
-                  s.isOpen
-                    ? "text-green-600"
-                    : "text-red-500"
-                }
-              >
-                {s.isOpen ? "Open" : "Booked"}
-              </div>
+          {/* USERS LIST */}
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            className="rounded-xl border border-purple-600 bg-zinc-900 p-5"
+          >
+            <h2 className="text-lg font-semibold text-purple-300 mb-3">
+              Users ({users.length})
+            </h2>
+
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {users.map((u) => (
+                <div
+                  key={u.id}
+                  className="flex justify-between rounded bg-black border border-zinc-700 p-2 text-sm hover:border-purple-500 transition"
+                >
+                  <span>{u.name}</span>
+                  <span className="text-gray-400">{u.id}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          </motion.div>
+        </div>
+
+        {/* GRID 2: SLOT */}
+        <div className="grid md:grid-cols-2 gap-6">
+
+          {/* CREATE SLOT */}
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            className="rounded-xl border border-purple-600 bg-zinc-900 p-5 space-y-3"
+          >
+            <h2 className="text-lg font-semibold text-purple-300">
+              Create Slot
+            </h2>
+
+            <input
+              type="datetime-local"
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+              className="w-full rounded bg-white text-black cursor-pointer font-bold border border-purple-500 p-2"
+            />
+
+            <input
+              type="datetime-local"
+              value={end}
+              onChange={(e) => setEnd(e.target.value)}
+              className="w-full rounded bg-white text-black cursor-pointer font-bold border border-purple-500 p-2"
+            />
+
+            <button
+              onClick={createSlot}
+              disabled={loading}
+              className="w-full rounded cursor-pointer bg-purple-800 hover:bg-purple-700 transition px-4 py-2"
+            >
+              Add Slot
+            </button>
+          </motion.div>
+
+          {/* SLOTS LIST */}
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            className="rounded-xl border border-purple-600 bg-zinc-900 p-5"
+          >
+            <h2 className="text-lg font-semibold text-purple-300 mb-3">
+              Slots ({slots.length})
+            </h2>
+
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {slots.map((s) => (
+                <div
+                  key={s.id}
+                  className="rounded border border-zinc-700 bg-black p-3 text-sm hover:border-purple-500 transition"
+                >
+                  <div className="text-gray-200">
+                    {new Date(s.startsAt).toLocaleString()} →{" "}
+                    {new Date(s.endsAt).toLocaleString()}
+                  </div>
+
+                  <div
+                    className={`mt-1 font-medium ${s.isOpen ? "text-green-400" : "text-red-400"
+                      }`}
+                  >
+                    {s.isOpen ? "Open" : "Booked"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
         </div>
       </div>
     </div>

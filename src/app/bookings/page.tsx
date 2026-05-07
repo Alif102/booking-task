@@ -2,134 +2,116 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
-type Booking = {
-  id: string;
-  status: string;
-  createdAt: string;
-  user: {
-    id: string;
-    name: string;
-  };
-  slot: {
-    id: string;
-    startsAt: string;
-    endsAt: string;
-  };
-};
+export default function BookingPage() {
+  const router = useRouter();
 
-export default function BookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<any[]>([]);
+  const [slots, setSlots] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [bookingId, setBookingId] = useState<string | null>(null);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+  const [loadingSlots, setLoadingSlots] = useState(true);
 
-  const fetchBookings = async () => {
+  // GET USERS + SLOTS
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [userRes, slotRes] = await Promise.all([
+          axios.get("/api/users"),
+          axios.get("/api/slots"),
+        ]);
+
+        setUsers(userRes.data);
+        setSlots(slotRes.data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoadingSlots(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // BOOK SLOT
+  const bookSlot = async (slotId: string) => {
     try {
-      setLoading(true);
+      setBookingId(slotId);
+      setError("");
+      setSuccess("");
 
-      const res = await axios.get("/api/bookings");
+      await axios.post("/api/bookings", {
+        slotId,
+        userId: selectedUser,
+      });
 
-      setBookings(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      setBookings([]);
+      setSuccess("Booking successful 🎉");
+
+      // IMPORTANT: redirect to bookings page
+      router.push("/bookings");
+
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Booking failed");
     } finally {
-      setLoading(false);
+      setBookingId(null);
     }
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleString([], {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+  const formatTime = (t: string) =>
+    new Date(t).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
 
   return (
-    <div className="mx-auto max-w-5xl p-6 space-y-6">
+    <div className="min-h-screen bg-black text-white p-6">
+      <h1 className="text-2xl font-bold text-purple-400 mb-4">
+        Book Slot
+      </h1>
 
-      {/* HEADER */}
-      <div>
-        <h1 className="text-2xl font-bold">
-          Confirmed Bookings
-        </h1>
-        <p className="text-sm text-gray-500">
-          All successful bookings in the system
-        </p>
-      </div>
+      {/* USER SELECT */}
+      <select
+        className="bg-gray-900 p-2 rounded mb-4"
+        value={selectedUser}
+        onChange={(e) => setSelectedUser(e.target.value)}
+      >
+        <option value="">Select user</option>
+        {users.map((u) => (
+          <option key={u.id} value={u.id}>
+            {u.name}
+          </option>
+        ))}
+      </select>
 
-      {/* TABLE */}
-      <div className="overflow-x-auto rounded-xl border bg-white">
+      {/* SLOTS */}
+      {loadingSlots ? (
+        <p>Loading...</p>
+      ) : (
+        slots.map((slot) => (
+          <div
+            key={slot.id}
+            className="border border-purple-700 p-4 rounded mb-3"
+          >
+            <p>
+              {formatTime(slot.startsAt)} - {formatTime(slot.endsAt)}
+            </p>
 
-        <table className="w-full text-sm">
+            <button
+              onClick={() => bookSlot(slot.id)}
+              disabled={!slot.isOpen || bookingId === slot.id}
+              className="mt-2 bg-purple-600 px-4 py-1 rounded"
+            >
+              {bookingId === slot.id ? "Booking..." : "Book"}
+            </button>
+          </div>
+        ))
+      )}
 
-          {/* HEAD */}
-          <thead className="bg-gray-100 text-left">
-            <tr>
-              <th className="p-3">User</th>
-              <th className="p-3">Slot Time</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Booked At</th>
-            </tr>
-          </thead>
-
-          {/* BODY */}
-          <tbody>
-
-            {loading ? (
-              <tr>
-                <td colSpan={4} className="p-4 text-center">
-                  Loading...
-                </td>
-              </tr>
-
-            ) : bookings.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="p-4 text-center text-gray-500">
-                  No bookings found
-                </td>
-              </tr>
-
-            ) : (
-              bookings.map((b) => (
-                <tr key={b.id} className="border-t">
-
-                  {/* USER */}
-                  <td className="p-3 font-medium">
-                    {b.user?.name}
-                  </td>
-
-                  {/* SLOT */}
-                  <td className="p-3">
-                    {formatDate(b.slot.startsAt)} →{" "}
-                    {formatDate(b.slot.endsAt)}
-                  </td>
-
-                  {/* STATUS */}
-                  <td className="p-3">
-                    <span className="rounded bg-green-100 px-2 py-1 text-green-700">
-                      {b.status}
-                    </span>
-                  </td>
-
-                  {/* CREATED AT */}
-                  <td className="p-3 text-gray-600">
-                    {formatDate(b.createdAt)}
-                  </td>
-
-                </tr>
-              ))
-            )}
-
-          </tbody>
-        </table>
-
-      </div>
+      {success && <p className="text-green-400">{success}</p>}
+      {error && <p className="text-red-400">{error}</p>}
     </div>
   );
 }
