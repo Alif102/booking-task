@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { chargePayment } from "@/lib/charge";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 const BookingSchema = z.object({
   slotId: z.string(),
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
 
     const { slotId, userId } = validation.data;
 
-    const booking = await prisma.$transaction(async (tx:any) => {
+    const booking = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const updatedSlot = await tx.slot.updateMany({
         where: { id: slotId,
          isOpen: true },

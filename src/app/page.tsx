@@ -1,3 +1,4 @@
+import HomePage from "@/components/Homepage";
 import TestBooking from "./TestBooking";
 
 export default function Page() { return <main>
@@ -5,7 +6,7 @@ export default function Page() { return <main>
 
 
 <div>
-    <TestBooking/>
+    <HomePage/>
 </div>
 
 

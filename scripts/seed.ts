@@ -10,19 +10,32 @@ async function main() {
 
   const users = await Promise.all(
     Array.from({ length: 10 }, (_, i) =>
-      db.user.create({ data: { name: `User ${i + 1}` } })
+      db.user.create({
+        data: { name: `User ${i + 1}` },
+      })
     )
   );
 
   const slot = await db.slot.create({
     data: {
       startsAt: new Date(Date.now() + 60 * 60 * 1000),
+      endsAt: new Date(Date.now() + 90 * 60 * 1000), // ✅ FIXED
       isOpen: true,
     },
   });
 
-  console.log("Slot:", slot.id, "startsAt:", slot.startsAt);
-  console.log("Users:", users.map((u) => `${u.name} (${u.id})`).join(", "));
+  console.log(
+    "Slot:",
+    slot.id,
+    slot.startsAt,
+   
+  );
+
+  console.log(
+    "Users:",
+    users.map((u) => `${u.name} (${u.id})`).join(", ")
+  );
+
   console.log("Seed complete.");
 }
 
